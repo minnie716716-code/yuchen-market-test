@@ -123,15 +123,15 @@ export default function App() {
       {/* Header */}
       <header className="border-b border-slate-200 p-6 flex justify-between items-center bg-white shadow-sm z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 flex items-center justify-center text-white font-serif font-bold text-xl">V</div>
+          <div className="w-10 h-10 bg-visa-blue flex items-center justify-center text-white font-serif font-bold text-xl">V</div>
           <div>
-            <h1 className="text-2xl font-serif font-bold tracking-tight text-blue-900">Visa MarketSentinel</h1>
-            <p className="text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-0.5">Global Intelligence & Risk Monitoring</p>
+            <h1 className="text-2xl font-serif font-bold tracking-tight text-visa-blue">Visa MarketSentinel</h1>
+            <p className="text-[10px] text-visa-blue font-bold uppercase tracking-widest mt-0.5">Global Intelligence & Risk Monitoring</p>
           </div>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center bg-slate-50 border border-slate-200 px-3 py-1.5 gap-2 rounded-md">
-            <Calendar className="w-4 h-4 text-blue-600 opacity-60" />
+            <Calendar className="w-4 h-4 text-visa-blue opacity-60" />
             <select 
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value as TimeRange)}
@@ -147,7 +147,7 @@ export default function App() {
             <input
               type="text"
               placeholder="Search custom keywords..."
-              className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all w-64 text-sm"
+              className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:border-visa-blue focus:ring-1 focus:ring-visa-blue transition-all w-64 text-sm"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch(query)}
@@ -156,7 +156,7 @@ export default function App() {
           <button 
             onClick={() => handleSearch(query)}
             disabled={loading || !query}
-            className="px-6 py-2 bg-blue-700 text-white text-sm font-semibold rounded-md hover:bg-blue-800 disabled:opacity-30 transition-all shadow-sm"
+            className="px-6 py-2 bg-visa-blue text-white text-sm font-semibold rounded-md hover:opacity-90 disabled:opacity-30 transition-all shadow-sm"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Search"}
           </button>
@@ -170,8 +170,8 @@ export default function App() {
             {CATEGORIES.map((cat) => (
               <div key={cat.id}>
                 <div className="flex items-center gap-2 mb-3">
-                  {cat.id === 'alerts' ? <AlertTriangle className="w-4 h-4 text-red-600" /> : <Building2 className="w-4 h-4 text-blue-600 opacity-60" />}
-                  <h2 className="text-[11px] font-bold text-blue-900 uppercase tracking-wider">{cat.name}</h2>
+                  {cat.id === 'alerts' ? <AlertTriangle className="w-4 h-4 text-red-600" /> : <Building2 className="w-4 h-4 text-visa-blue opacity-60" />}
+                  <h2 className="text-[11px] font-bold text-visa-blue uppercase tracking-wider">{cat.name}</h2>
                 </div>
                 <div className="space-y-0.5">
                   {cat.items.map((item, idx) => {
@@ -180,7 +180,7 @@ export default function App() {
                       <button
                         key={idx}
                         onClick={() => onKeywordClick(item)}
-                        className="w-full text-left px-3 py-2 text-[13px] text-slate-600 hover:bg-blue-50 hover:text-blue-700 rounded-md transition-all flex justify-between items-center group"
+                        className="w-full text-left px-3 py-2 text-[13px] text-slate-600 hover:bg-visa-blue/5 hover:text-visa-blue rounded-md transition-all flex justify-between items-center group"
                       >
                         <span className="truncate">{label}</span>
                         <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-all" />
@@ -194,7 +194,7 @@ export default function App() {
 
           <div className="mt-12 pt-6 border-t border-slate-100">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-blue-600 opacity-60" />
+              <TrendingUp className="w-4 h-4 text-visa-blue opacity-60" />
               <h2 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Intelligence Status</h2>
             </div>
             <div className="text-[10px] font-mono text-slate-400">
@@ -210,9 +210,9 @@ export default function App() {
           {!result && !loading && !error && (
             <div className="h-full flex flex-col items-center justify-center text-center opacity-20">
               <div className="w-20 h-20 bg-white border border-slate-200 rounded-full flex items-center justify-center mb-6 shadow-sm">
-                <Search className="w-10 h-10 text-blue-900" />
+                <Search className="w-10 h-10 text-visa-blue" />
               </div>
-              <h3 className="text-2xl font-serif italic text-blue-900">Select a monitoring category</h3>
+              <h3 className="text-2xl font-serif italic text-visa-blue">Select a monitoring category</h3>
               <p className="text-sm mt-2 text-slate-600">Tracking global footprint and industry dynamics</p>
             </div>
           )}
@@ -220,12 +220,12 @@ export default function App() {
           {loading && (
             <div className="h-full flex flex-col items-center justify-center text-center">
               <div className="relative w-16 h-16 mb-6">
-                <Loader2 className="w-16 h-16 animate-spin text-blue-600 opacity-20" />
+                <Loader2 className="w-16 h-16 animate-spin text-visa-blue opacity-20" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-2 h-2 bg-blue-600 rounded-full animate-ping" />
+                  <div className="w-2 h-2 bg-visa-blue rounded-full animate-ping" />
                 </div>
               </div>
-              <h3 className="text-2xl font-serif italic text-blue-900 animate-pulse">Scanning global sources...</h3>
+              <h3 className="text-2xl font-serif italic text-visa-blue animate-pulse">Scanning global sources...</h3>
               <p className="text-sm mt-2 text-slate-500">Performing deep search and structured analysis</p>
             </div>
           )}
@@ -247,7 +247,7 @@ export default function App() {
             <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
               <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <h2 className="text-xs font-bold text-blue-600 uppercase tracking-widest">Executive Summary</h2>
+                  <h2 className="text-xs font-bold text-visa-blue uppercase tracking-widest">Executive Summary</h2>
                   <span className="text-[10px] font-mono text-slate-400 uppercase">Range: {timeRange}</span>
                 </div>
                 <div className="markdown-body text-lg leading-relaxed text-slate-800">
@@ -257,7 +257,7 @@ export default function App() {
 
               <div className="space-y-6">
                 <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                  <h2 className="text-xs font-bold text-blue-900 uppercase tracking-widest">Detailed Intelligence</h2>
+                  <h2 className="text-xs font-bold text-visa-blue uppercase tracking-widest">Detailed Intelligence</h2>
                   <span className="text-[10px] font-mono text-slate-400">{result.articles.length} REPORTS FOUND</span>
                 </div>
                 
@@ -265,21 +265,21 @@ export default function App() {
                   {result.articles
                     .sort((a, b) => (a.category === 'priority' ? -1 : 1))
                     .map((article, idx) => (
-                    <div key={idx} className="group bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:border-blue-300 transition-all">
+                    <div key={idx} className="group bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:border-visa-blue/30 transition-all">
                       <div className="flex justify-between items-start gap-4 mb-4">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <span className={cn(
                               "text-[10px] font-bold px-2 py-0.5 rounded uppercase",
                               article.category === 'priority' 
-                                ? "text-blue-600 bg-blue-50" 
+                                ? "text-visa-blue bg-visa-blue/5" 
                                 : "text-slate-500 bg-slate-100"
                             )}>
                               {article.category === 'priority' ? "重点来源" : "其他来源"}
                             </span>
                             {article.source && <span className="text-[10px] font-mono text-slate-400 uppercase">{article.source}</span>}
                           </div>
-                          <h4 className="text-xl font-serif font-bold leading-tight text-blue-900 group-hover:text-blue-700 transition-colors">
+                          <h4 className="text-xl font-serif font-bold leading-tight text-visa-blue group-hover:opacity-80 transition-colors">
                             {article.titleZh}
                           </h4>
                           <h5 className="text-sm font-medium text-slate-500 italic">
@@ -291,14 +291,14 @@ export default function App() {
                             href={article.url} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="p-2 bg-slate-50 text-slate-400 hover:bg-blue-600 hover:text-white rounded-md transition-all border border-slate-200"
+                            className="p-2 bg-slate-50 text-slate-400 hover:bg-visa-blue hover:text-white rounded-md transition-all border border-slate-200"
                           >
                             <ExternalLink className="w-4 h-4" />
                           </a>
                         )}
                       </div>
                       
-                      <div className="bg-slate-50 p-5 rounded-lg border-l-4 border-blue-600">
+                      <div className="bg-slate-50 p-5 rounded-lg border-l-4 border-visa-blue">
                         <p className="text-[15px] leading-relaxed text-slate-700">
                           {article.analysis}
                         </p>

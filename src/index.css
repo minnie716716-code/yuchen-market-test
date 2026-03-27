@@ -5,13 +5,15 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   --font-serif: "Playfair Display", serif;
+  --color-visa-blue: #1A1F71;
+  --color-visa-gold: #F7B600;
 }
 
 :root {
   --bg: #F8FAFC;
   --ink: #0F172A;
-  --primary: #1E40AF;
-  --primary-light: #DBEAFE;
+  --primary: #1A1F71;
+  --primary-light: #E8E9F5;
   --line: #E2E8F0;
 }
 

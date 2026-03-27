@@ -8,6 +8,7 @@ export interface NewsArticle {
   url: string;
   source: string;
   analysis: string;
+  category: 'priority' | 'global';
 }
 
 export interface SearchResult {
@@ -17,6 +18,35 @@ export interface SearchResult {
 
 export type TimeRange = 'day' | 'week' | 'month';
 
+async function fetchTavilyNews(query: string, timeRange: TimeRange): Promise<{ priorityResults: any[], globalResults: any[] }> {
+  try {
+    const response = await fetch("/api/search/tavily", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: query,
+        timeRange: timeRange
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("Tavily API error:", await response.text());
+      return { priorityResults: [], globalResults: [] };
+    }
+
+    const data = await response.json();
+    return {
+      priorityResults: data.priorityResults || [],
+      globalResults: data.globalResults || []
+    };
+  } catch (error) {
+    console.error("Error fetching from Tavily:", error);
+    return { priorityResults: [], globalResults: [] };
+  }
+}
+
 export async function searchPaymentNews(query: string, timeRange: TimeRange = 'week'): Promise<SearchResult> {
   const timePrompt = {
     day: "past 24 hours",
@@ -24,28 +54,56 @@ export async function searchPaymentNews(query: string, timeRange: TimeRange = 'w
     month: "past 30 days"
   }[timeRange];
 
+  // 1. Fetch raw news from Tavily (Categorized)
+  const { priorityResults, globalResults } = await fetchTavilyNews(query, timeRange);
+  
+  // 2. Remove duplicates from global results if they are in priority results
+  const priorityUrls = new Set(priorityResults.map(r => r.url));
+  const uniqueGlobalResults = globalResults.filter(r => !priorityUrls.has(r.url));
+
+  // 3. Prepare context for Gemini
+  const context = `
+    Current Date: ${new Date().toISOString().split('T')[0]}
+    
+    Here are the news results for "${query}" from two sources:
+    
+    [PRIORITY SOURCES (mpaypass.com.cn, chinanews.com, cls.cn)]:
+    ${priorityResults.map((r, i) => `[P${i+1}] Title: ${r.title}\nURL: ${r.url}\nContent: ${r.content}`).join('\n\n')}
+    
+    [GLOBAL SOURCES]:
+    ${uniqueGlobalResults.map((r, i) => `[G${i+1}] Title: ${r.title}\nURL: ${r.url}\nContent: ${r.content}`).join('\n\n')}
+  `;
+
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Search for the latest news related to: "${query}" from the ${timePrompt}. 
+      contents: `${context}
       
-      For each relevant news item found, provide:
-      1. Original English Title (if available, otherwise translate to English)
-      2. Accurate Chinese Title
-      3. A concise summary and professional analysis (one paragraph)
+      Based on the above information, provide a structured analysis:
+      1. For each news item, provide:
+         - Original English Title
+         - Accurate Chinese Title
+         - The direct URL
+         - A concise summary and professional analysis (one paragraph)
+         - The CATEGORY: MUST be 'priority' if it came from the priority list, or 'global' if it came from the global list.
       
-      Also provide an overall executive summary of the situation.
-      Focus on the payment industry, regulatory implications, and strategic impact.`,
+      2. Provide an overall executive summary.
+      
+      STRICT REQUIREMENTS:
+      - TIME RANGE: ONLY include news from the ${timePrompt} (Current date: ${new Date().toISOString().split('T')[0]}). DISCARD any results older than this range.
+      - CATEGORIZATION: You MUST correctly assign the 'category' field for each article.
+      - DUPLICATES: Ensure there are no duplicate articles by URL.
+      
+      Language: Chinese (Simplified) for the analysis and titles.`,
       config: {
-        tools: [{ googleSearch: {} }],
-        systemInstruction: `You are a senior financial news analyst. Your output must be structured and professional.
-        Return the results in a clear format. For each article, clearly separate the English Title, Chinese Title, and the Summary+Analysis.
+        systemInstruction: `You are a senior financial news analyst specializing in the Chinese and global payment industry. 
+        Your task is to analyze news and provide structured intelligence.
         Language: Chinese (Simplified) for the analysis and titles.`,
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            summary: { type: Type.STRING, description: "Overall executive summary of the search results." },
+            summary: { type: Type.STRING, description: "Overall executive summary." },
             articles: {
               type: Type.ARRAY,
               items: {
@@ -55,9 +113,10 @@ export async function searchPaymentNews(query: string, timeRange: TimeRange = 'w
                   titleZh: { type: Type.STRING },
                   url: { type: Type.STRING },
                   source: { type: Type.STRING },
-                  analysis: { type: Type.STRING, description: "One paragraph summary and professional analysis." }
+                  analysis: { type: Type.STRING },
+                  category: { type: Type.STRING, enum: ['priority', 'global'] }
                 },
-                required: ["titleEn", "titleZh", "url", "analysis"]
+                required: ["titleEn", "titleZh", "url", "analysis", "category"]
               }
             }
           },
@@ -68,16 +127,14 @@ export async function searchPaymentNews(query: string, timeRange: TimeRange = 'w
 
     const data = JSON.parse(response.text);
     
-    // Enrich with source information from grounding metadata if possible
-    const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
-    if (groundingChunks && data.articles) {
-      data.articles = data.articles.map((article: any, index: number) => {
-        // Try to find a matching URL in grounding chunks if the model didn't provide a good one
-        if (!article.url || article.url.startsWith('http')) {
-          const chunk = groundingChunks.find((c: any) => c.web && (c.web.title?.includes(article.titleEn) || c.web.title?.includes(article.titleZh)));
-          if (chunk?.web) {
-            article.url = chunk.web.uri;
-            article.source = new URL(chunk.web.uri).hostname;
+    // Enrich with source information
+    if (data.articles) {
+      data.articles = data.articles.map((article: any) => {
+        if (article.url && article.url.startsWith('http') && !article.source) {
+          try {
+            article.source = new URL(article.url).hostname.replace('www.', '');
+          } catch (e) {
+            article.source = "News Source";
           }
         }
         return article;

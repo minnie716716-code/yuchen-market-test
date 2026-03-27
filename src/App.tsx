@@ -199,7 +199,7 @@ export default function App() {
             </div>
             <div className="text-[10px] font-mono text-slate-400">
               <p>ENGINE: GEMINI-3-FLASH</p>
-              <p>GROUNDING: ACTIVE</p>
+              <p>SEARCH: TAVILY NEWS API</p>
               <p>THEME: BLUE_WHITE_PROFESSIONAL</p>
             </div>
           </div>
@@ -262,12 +262,21 @@ export default function App() {
                 </div>
                 
                 <div className="space-y-8">
-                  {result.articles.map((article, idx) => (
+                  {result.articles
+                    .sort((a, b) => (a.category === 'priority' ? -1 : 1))
+                    .map((article, idx) => (
                     <div key={idx} className="group bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:border-blue-300 transition-all">
                       <div className="flex justify-between items-start gap-4 mb-4">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase">Report #{idx + 1}</span>
+                            <span className={cn(
+                              "text-[10px] font-bold px-2 py-0.5 rounded uppercase",
+                              article.category === 'priority' 
+                                ? "text-blue-600 bg-blue-50" 
+                                : "text-slate-500 bg-slate-100"
+                            )}>
+                              {article.category === 'priority' ? "重点来源" : "其他来源"}
+                            </span>
                             {article.source && <span className="text-[10px] font-mono text-slate-400 uppercase">{article.source}</span>}
                           </div>
                           <h4 className="text-xl font-serif font-bold leading-tight text-blue-900 group-hover:text-blue-700 transition-colors">
